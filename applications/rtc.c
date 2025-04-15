@@ -40,7 +40,7 @@ void HAL_RTC_AlarmAEventCallback(RTC_HandleTypeDef *RtcHandle)
     if(RTC_Hours % 120 == 0 )
     {
         RTC_Hours = 1;
-        valve_check();
+        valve_check_start();
     }
     else
     {

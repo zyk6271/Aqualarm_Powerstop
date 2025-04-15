@@ -100,19 +100,6 @@ void warning_init(void)
     warning_event_bind(4,3,&MasterSensorLeakEvent,MasterSensorLeakEventCallback);
 }
 
-uint8_t warning_leak_status_get(void)
-{
-    if(DeviceStatus == MasterSensorLeak || DeviceStatus == MasterSensorAbnormal)
-    {
-        return 1;
-    }
-    else
-    {
-        return 0;
-    }
-}
-
-
 uint32_t warning_status_get(void)
 {
     return DeviceStatus;

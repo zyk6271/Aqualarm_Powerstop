@@ -12,10 +12,13 @@
 #include <board.h>
 #include "signal_led.h"
 #include "pin_config.h"
+#include "water_work.h"
 
 //定义信号灯对象句柄
 static led_t *led_obj_off_red = RT_NULL;
 static led_t *led_obj_loss_red = RT_NULL;
+static led_t *led_obj_valve_check_red = RT_NULL;
+
 static led_t *led_obj_off_red_once = RT_NULL;
 static led_t *led_obj_off_red_three = RT_NULL;
 static led_t *led_obj_on_green = RT_NULL;
@@ -30,6 +33,10 @@ static led_t *beep_obj_three = RT_NULL;
 
 static struct rt_thread led_thread;
 static uint8_t led_thread_stack[512] = {0};
+
+extern enum Device_Status DeviceStatus;
+
+extern uint8_t water_lost_status;
 
 //定义内存操作函数接口
 led_mem_opreation_t led_mem_opreation;
@@ -202,6 +209,25 @@ void led_valve_on_resume(void)
     }
 }
 
+void led_valve_check_control(uint8_t value)
+{
+    if(value)
+    {
+        water_lost_pause();
+        water_leak_pause();
+        led_valve_on_pause();
+        led_start(led_obj_valve_check_red);
+    }
+    else
+    {
+        led_stop(led_obj_valve_check_red);
+        led_start(led_obj_on_green);
+        water_lost_resume();
+        water_leak_resume();
+    }
+}
+
+
 int led_init(void)
 {
     beep_pwm_hw_init();
@@ -231,6 +257,9 @@ int led_init(void)
 
     led_obj_off_red_three = led_create(off_red_on, off_red_off, NULL);
     led_set_mode(led_obj_off_red_three, 3, "200,200,");
+
+    led_obj_valve_check_red = led_create(off_red_on, off_red_off, NULL);
+    led_set_mode(led_obj_valve_check_red, LOOP_PERMANENT, "200,0,");
 
     led_obj_on_green = led_create(on_green_on, on_green_off, NULL);
     led_set_mode(led_obj_on_green, 3, "200,200,");
